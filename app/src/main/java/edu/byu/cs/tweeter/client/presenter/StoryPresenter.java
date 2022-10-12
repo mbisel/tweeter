@@ -4,6 +4,8 @@ import java.util.List;
 
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.StatusService;
+import edu.byu.cs.tweeter.client.model.service.UserService;
+import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
@@ -23,6 +25,7 @@ public class StoryPresenter {
         void displayMessage(String message);
         void setLoadingFooter(boolean value);
         void addStatuses(List<Status> statuses);
+        void navigateToUser(User user);
     }
 
     public StoryPresenter(View view) {
@@ -70,6 +73,29 @@ public class StoryPresenter {
             view.setLoadingFooter(false);
             view.displayMessage("Failed to get story because of exception: " + ex.getMessage());
 
+        }
+    }
+
+    public void getUser(AuthToken authToken, String alias) {
+        view.displayMessage("Getting user's profile...");
+        new UserService().getUser(authToken, alias, new StoryPresenter.GetUserObserver());
+    }
+
+    private class GetUserObserver implements UserService.GetUserObserver {
+
+        @Override
+        public void getUser(User user) {
+            view.navigateToUser(user);
+        }
+
+        @Override
+        public void userFailed(String message) {
+            view.displayMessage(message);
+        }
+
+        @Override
+        public void userException(String ex) {
+            view.displayMessage(ex);
         }
     }
 

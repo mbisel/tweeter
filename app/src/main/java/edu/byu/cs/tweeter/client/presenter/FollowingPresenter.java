@@ -4,6 +4,8 @@ import java.util.List;
 
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.FollowService;
+import edu.byu.cs.tweeter.client.model.service.UserService;
+import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public class FollowingPresenter {
@@ -22,6 +24,7 @@ public class FollowingPresenter {
         void displayMessage(String message);
         void setLoadingFooter(boolean value);
         void addFollowees(List<User> followees);
+        void navigateToUser(User user);
     }
 
     public FollowingPresenter(View view){
@@ -71,4 +74,26 @@ public class FollowingPresenter {
         }
     }
 
+    public void getUser(AuthToken authToken, String alias) {
+        view.displayMessage("Getting user's profile...");
+        new UserService().getUser(authToken, alias, new FollowingPresenter.GetUserObserver());
+    }
+
+    private class GetUserObserver implements UserService.GetUserObserver {
+
+        @Override
+        public void getUser(User user) {
+            view.navigateToUser(user);
+        }
+
+        @Override
+        public void userFailed(String message) {
+            view.displayMessage(message);
+        }
+
+        @Override
+        public void userException(String ex) {
+            view.displayMessage(ex);
+        }
+    }
 }
